@@ -1,0 +1,1 @@
+cmd_/home/ntai/Linux_Embedded/application_project/device_file/modules.order := {   echo /home/ntai/Linux_Embedded/application_project/device_file/device_file_kernel_module.ko; :; } | awk '!x[$$0]++' - > /home/ntai/Linux_Embedded/application_project/device_file/modules.order

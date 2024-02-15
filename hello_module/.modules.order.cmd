@@ -1,0 +1,1 @@
+cmd_/home/ntai/Linux_Embedded/application_project/hello_module/modules.order := {   echo /home/ntai/Linux_Embedded/application_project/hello_module/hello_module.ko; :; } | awk '!x[$$0]++' - > /home/ntai/Linux_Embedded/application_project/hello_module/modules.order

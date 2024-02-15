@@ -1,0 +1,2 @@
+/home/ntai/Linux_Embedded/application_project/device_tree_BBB/device_tree_BBB_kernel_module.o
+

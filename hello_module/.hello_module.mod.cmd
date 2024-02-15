@@ -1,0 +1,1 @@
+cmd_/home/ntai/Linux_Embedded/application_project/hello_module/hello_module.mod := { echo  /home/ntai/Linux_Embedded/application_project/hello_module/hello_module.o;  echo; } > /home/ntai/Linux_Embedded/application_project/hello_module/hello_module.mod

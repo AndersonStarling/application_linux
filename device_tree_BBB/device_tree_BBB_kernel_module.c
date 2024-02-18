@@ -24,10 +24,15 @@ static const struct of_device_id device_tree_BBB_of_match[] = {
 int device_tree_BBB_driver_probe(struct platform_device *pdev)
 {
 	int IRQ = 0;
+	struct resource *r;
 
     pr_info("probe is called\n");
 
-	IRQ = platform_get_irq(pdev, 1);
+	r = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+	pr_info("IRQ start %d\n", r -> start);
+	pr_info("IRQ end %d\n", r -> end);
+
+	IRQ = platform_get_irq(pdev, 0);
 	pr_info("IRQ is %d\n", IRQ);
 
     return 0;

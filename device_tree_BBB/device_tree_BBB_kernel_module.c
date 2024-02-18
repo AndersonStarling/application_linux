@@ -23,7 +23,12 @@ static const struct of_device_id device_tree_BBB_of_match[] = {
 
 int device_tree_BBB_driver_probe(struct platform_device *pdev)
 {
+	int IRQ = 0;
+
     pr_info("probe is called\n");
+
+	IRQ = platform_get_irq(pdev, 1);
+	pr_info("IRQ is %d\n", IRQ);
 
     return 0;
 }
@@ -32,7 +37,7 @@ int device_tree_BBB_driver_probe(struct platform_device *pdev)
 int device_tree_BBB_driver_remove(struct platform_device *pdev)
 {
     pr_info("remove is called\n");
-  
+
 	return 0;
 }
 

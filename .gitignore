@@ -1,5 +1,9 @@
 *.ko
 *.order
+*.cmd
+*.mod.c
+*.o
+*.mod
 
 
 

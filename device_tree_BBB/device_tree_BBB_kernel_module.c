@@ -28,9 +28,13 @@ int device_tree_BBB_driver_probe(struct platform_device *pdev)
 
     pr_info("probe is called\n");
 
-	r = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-	pr_info("IRQ start %d\n", r -> start);
-	pr_info("IRQ end %d\n", r -> end);
+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	pr_info("Start %d\n", r -> start);
+	pr_info("End %d\n", r -> end);
+
+	r = platform_get_resource_byname(pdev , IORESOURCE_MEM, "user-data");
+	pr_info("Start %d\n", r -> start);
+	pr_info("End %d\n", r -> end);
 
 	IRQ = platform_get_irq(pdev, 0);
 	pr_info("IRQ is %d\n", IRQ);

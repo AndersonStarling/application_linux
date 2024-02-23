@@ -11,7 +11,7 @@ clean:
 	make -C $(KERNEL_SRC) M=$(shell pwd) clean
 
 copy:
-	scp device_tree_BBB_kernel_module.ko debian@192.168.7.2:/home/debian
+	scp -B device_tree_BBB_kernel_module.ko debian@192.168.7.2:/home/debian
 
 
 

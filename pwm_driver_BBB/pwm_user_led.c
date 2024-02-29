@@ -19,7 +19,7 @@
 #include <linux/string.h>
 #include <linux/miscdevice.h>
 #include <linux/pwm.h>
-#include <tools/include/nolibc/stdlib.h>
+#include <linux/kernel.h>
 
 static int pwm_user_probe(struct platform_device *pdev);
 static int pwm_user_remove(struct platform_device *pdev);
@@ -50,6 +50,8 @@ struct miscdevice pwm_user_device = {
     .fops = &pwm_user_fops,
 };
 
+struct pwm_device *pwm;
+
 static ssize_t pwm_user_write(struct file *file, const char __user *buf, size_t len, loff_t *pos)
 {
     char * dynamic_ptr = NULL;
@@ -62,7 +64,12 @@ static ssize_t pwm_user_write(struct file *file, const char __user *buf, size_t 
     copy_from_user(dynamic_ptr, buf, len);
 
     /* Convert ASCII to integer number */
-    int_value = atoi(dynamic_ptr);
+    ret = kstrtol(dynamic_ptr, 10, (long *)&int_value);
+    if(ret < 0)
+    {
+        pr_info("Convert string failed\n");
+        return -1;
+    }
 
     /* Configure PWM period */
     ret = pwm_config(pwm, int_value / 4, int_value);
@@ -107,8 +114,6 @@ static struct platform_driver pwm_user_driver =
 	},
 };
 
-struct pwm_device *pwm;
-
 static int pwm_user_probe(struct platform_device *pdev)
 {
     int ret = -1;
@@ -150,8 +155,14 @@ static int pwm_user_remove(struct platform_device *pdev)
 {
     int ret = -1;
 
+    pr_info("remove pwm module\n");
+
+    /* disable pwm */
     pwm_disable(pwm);
     pwm_put(pwm);
+
+    /* deregister pwm device */
+    misc_deregister(&pwm_user_device);
 
     return 0;
 }

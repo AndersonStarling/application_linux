@@ -69,6 +69,21 @@ static int serial_user_close(struct inode *inodep, struct file *filp)
     return 0;
 }
 
+/**
+ * @brief Callback is called whenever a character is received
+ */
+static int serdev_echo_recv(struct serdev_device *serdev, const unsigned char *buffer, size_t size) 
+{
+	printk("serdev_echo - Received %ld bytes with \"%s\"\n", size, buffer);
+        return 	serdev_device_write_buf(serdev, buffer, size);
+
+    return 0;
+}
+
+static const struct serdev_device_ops serdev_echo_ops = {
+	.receive_buf = serdev_echo_recv,
+};
+
 
 static struct serdev_device_driver serial_user_driver = 
 {
@@ -83,9 +98,23 @@ static struct serdev_device_driver serial_user_driver =
 static int serial_user_probe(struct serdev_device *pdev)
 {
     int ret = -1;
+    int status = 0;
 
     pr_info("probe is called\n");
 
+    serdev_device_set_client_ops(pdev, &serdev_echo_ops);
+    status = serdev_device_open(pdev);
+	if(status) {
+		printk("serdev_echo - Error opening serial port!\n");
+		return -status;
+	}
+
+    serdev_device_set_baudrate(pdev, 9600);
+	serdev_device_set_flow_control(pdev, false);
+	serdev_device_set_parity(pdev, SERDEV_PARITY_NONE);
+
+    status = serdev_device_write_buf(pdev, "Type something: ", sizeof("Type something: "));
+    pr_info("Byte wrote : %d\n", status);
 
     /* Create misc module */
     ret = misc_register(&serial_user_device);
@@ -109,30 +138,7 @@ static void serial_user_remove(struct serdev_device  *pdev)
     return 0;
 }
 
-/**
- * @brief This function is called, when the module is loaded into the kernel
- */
-static int __init serial_module_init(void) 
-{
-	pr_info("serial module - Loading the driver...\n");
-	if(serdev_device_driver_register(&serial_user_driver)) {
-		pr_info("serdev_echo - Error! Could not load driver\n");
-		return -1;
-	}
-	return 0;
-}
-
-/**
- * @brief This function is called, when the module is removed from the kernel
- */
-static void __exit serial_module_exit(void) 
-{
-	pr_info("serial module - Unload driver");
-	serdev_device_driver_unregister(&serial_user_driver);
-}
-
-module_init(serial_module_init);
-module_exit(serial_module_exit);
+module_serdev_device_driver(serial_user_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Serial Led kernel module");

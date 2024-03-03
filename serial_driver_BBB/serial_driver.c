@@ -5,9 +5,11 @@
 #include <linux/property.h>
 #include <linux/platform_device.h>
 #include <linux/of_device.h>
+#include <linux/miscdevice.h>
+#include <linux/fs.h>
 
-static int serial_user_probe(struct platform_device *pdev);
-static int serial_user_remove(struct platform_device *pdev);
+static int serial_user_probe(struct serdev_device *pdev);
+static void serial_user_remove(struct serdev_device *pdev);
 
 static ssize_t serial_user_write(struct file *file, const char __user *buf, size_t len, loff_t *pos);
 static ssize_t serial_user_read(struct file *file, char __user *buf, size_t len, loff_t *pos);
@@ -68,7 +70,7 @@ static int serial_user_close(struct inode *inodep, struct file *filp)
 }
 
 
-static struct platform_driver serial_user_driver = 
+static struct serdev_device_driver serial_user_driver = 
 {
 	.probe		= serial_user_probe,
     .remove     = serial_user_remove,
@@ -78,9 +80,12 @@ static struct platform_driver serial_user_driver =
 	},
 };
 
-static int serial_user_probe(struct platform_device *pdev)
+static int serial_user_probe(struct serdev_device *pdev)
 {
     int ret = -1;
+
+    pr_info("probe is called\n");
+
 
     /* Create misc module */
     ret = misc_register(&serial_user_device);
@@ -92,13 +97,11 @@ static int serial_user_probe(struct platform_device *pdev)
     return 0;
 }
 
-static int serial_user_remove(struct platform_device *pdev)
+static void serial_user_remove(struct serdev_device  *pdev)
 {
     int ret = -1;
 
-    pr_info("remove pwm module\n");
-
-
+    pr_info("remove serial module\n");
 
     /* deregister pwm device */
     misc_deregister(&serial_user_device);
@@ -106,11 +109,33 @@ static int serial_user_remove(struct platform_device *pdev)
     return 0;
 }
 
+/**
+ * @brief This function is called, when the module is loaded into the kernel
+ */
+static int __init serial_module_init(void) 
+{
+	pr_info("serial module - Loading the driver...\n");
+	if(serdev_device_driver_register(&serial_user_driver)) {
+		pr_info("serdev_echo - Error! Could not load driver\n");
+		return -1;
+	}
+	return 0;
+}
 
-module_platform_driver(serial_user_driver);
+/**
+ * @brief This function is called, when the module is removed from the kernel
+ */
+static void __exit serial_module_exit(void) 
+{
+	pr_info("serial module - Unload driver");
+	serdev_device_driver_unregister(&serial_user_driver);
+}
+
+module_init(serial_module_init);
+module_exit(serial_module_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Pwm Led kernel module");
+MODULE_DESCRIPTION("Serial Led kernel module");
 
 
 

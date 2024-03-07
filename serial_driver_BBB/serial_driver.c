@@ -75,7 +75,6 @@ static int serial_user_close(struct inode *inodep, struct file *filp)
 static int serdev_echo_recv(struct serdev_device *serdev, const unsigned char *buffer, size_t size) 
 {
 	printk("serdev_echo - Received %ld bytes with \"%s\"\n", size, buffer);
-        return 	serdev_device_write_buf(serdev, buffer, size);
 
     return 0;
 }
